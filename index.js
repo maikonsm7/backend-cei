@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
@@ -18,11 +18,14 @@ const conn = require('./db/conn')
 
 // models
 const User = require('./models/User')
+const Student = require('./models/Student')
 
 // routes
-const userRoutes = require('./routes/UserRoutes')
+const authRoutes = require('./routes/AuthRoutes')
+const studentRoutes = require('./routes/StudentRoutes')
 
-app.use('/users', userRoutes)
+app.use('/auth', authRoutes)
+app.use('/students', studentRoutes)
 
 // conn.sync({force: true})
 conn.sync()
