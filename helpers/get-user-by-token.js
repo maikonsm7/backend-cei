@@ -6,7 +6,7 @@ const getUserByToken = async (token) => {
             res.status(401).json({message: 'Acesso negado!'})
             return
         }
-    const decoded = jwt.verify(token, "nosso_secret")
+    const decoded = jwt.verify(token, process.env.SECRET)
     const user = await User.findById(decoded.id)
     return user
 }
