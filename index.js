@@ -24,8 +24,8 @@ const userRoutes = require('./routes/UserRoutes')
 
 app.use('/users', userRoutes)
 
-conn.sync({force: true})
-// conn.sync()
+// conn.sync({force: true})
+conn.sync()
 .then(app.listen(port, ()=>{
     console.log(`http://localhost:${port}`)
 }))
