@@ -1,5 +1,9 @@
 const Student = require('../models/Student')
+const jwt = require('jsonwebtoken')
+
+// helpers
 const verifyCpf = require('../helpers/verify-cpf')
+const getToken = require('../helpers/get-token')
 
 class StudentController {
     static async create(req, res) {
@@ -30,18 +34,40 @@ class StudentController {
             return
         }
 
-        const newStudent = await Student.create({ name, email, cpf, phone, createdUser: req.session.userid })
-        res.status(201).json({ message: 'Aluno cadastrado com sucesso!', newStudent })
-        return
+        const token = getToken(req)
+        const decoded = jwt.verify(token, process.env.SECRET)
+
+        try {
+            const newStudent = await Student.create({ name, email, cpf, phone, createdUser: decoded.id })
+            res.status(201).json({ message: 'Aluno cadastrado com sucesso!', newStudent })
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
 
     }
     static async getAllStudents(req, res) {
-        const studentsData = await Student.findAll({
-            order: [['createdAt', 'DESC']]
-        })
+        try {
+            const students = await Student.findAll({ order: [['createdAt', 'DESC']] })
+            res.status(201).json({ students })
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
+    }
+    static async getStudentById(req, res) {
+        const id = req.params.id
+        try {
+            const student = await Student.findOne({ where: { id }, raw: true })
+            if (student) {
+                res.status(200).json({ student })
+                return
+            } else {
+                res.status(422).json({ message: "Aluno não encontrado!" })
+                return
+            }
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
 
-        res.status(201).json({ studentsData })
-        return
     }
 }
 

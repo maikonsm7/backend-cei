@@ -5,10 +5,10 @@ const app = express()
 const port = process.env.PORT || 3001
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
 
 // solve cors
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 
 // public folder for images
 app.use(express.static('public'))
@@ -17,6 +17,7 @@ app.use(express.static('public'))
 const conn = require('./db/conn')
 
 // models
+const Role = require('./models/Role')
 const User = require('./models/User')
 const Student = require('./models/Student')
 
@@ -29,7 +30,7 @@ app.use('/students', studentRoutes)
 
 // conn.sync({force: true})
 conn.sync()
-.then(app.listen(port, ()=>{
-    console.log(`http://localhost:${port}`)
-}))
-.catch(e => console.log(e))
+    .then(app.listen(port, () => {
+        console.log(`http://localhost:${port}`)
+    }))
+    .catch(e => console.log(e))

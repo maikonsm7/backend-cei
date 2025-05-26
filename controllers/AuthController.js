@@ -19,7 +19,7 @@ class AuthController {
             return
         }
 
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ where: {email}, raw: true })
         if (!user) {
             res.status(422).json({ message: "Email não cadastrado!" })
             return
