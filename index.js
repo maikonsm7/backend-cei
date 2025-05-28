@@ -23,9 +23,11 @@ const Student = require('./models/Student')
 
 // routes
 const authRoutes = require('./routes/AuthRoutes')
+const userRoutes = require('./routes/UserRoutes')
 const studentRoutes = require('./routes/StudentRoutes')
 
 app.use('/auth', authRoutes)
+app.use('/users', userRoutes)
 app.use('/students', studentRoutes)
 
 // conn.sync({force: true})
