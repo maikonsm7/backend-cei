@@ -7,7 +7,7 @@ const getUserByToken = async (token) => {
             return
         }
     const decoded = jwt.verify(token, process.env.SECRET)
-    const user = await User.findById(decoded.id)
+    const user = await User.findOne({ where: { id: decoded.id }, raw: true })
     return user
 }
 
