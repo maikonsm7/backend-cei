@@ -7,17 +7,19 @@ const getToken = require('../helpers/get-token')
 
 class StudentController {
     static async create(req, res) {
-        const { name, email, cpf, phone } = req.body
-
+        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
+        const student = {}
         // validations
         if (!name) {
             res.status(422).json({ message: 'O nome é obrigatório!' })
             return
         }
+        student.name = name
         if (!email) {
             res.status(422).json({ message: 'O email é obrigatório!' })
             return
         }
+        student.email = email
         if (!cpf) {
             res.status(422).json({ message: 'O CPF é obrigatório!' })
             return
@@ -29,16 +31,46 @@ class StudentController {
             res.status(422).json({ message: 'CPF inválido!' })
             return
         }
+
+        // check if CPF exist
+        const checkCPF = await Student.findOne({ where: { cpf: cpfIsValid } })
+        if (checkCPF) {
+            res.status(422).json({ message: 'CPF já cadastrado!' })
+            return
+        }
+        student.cpf = cpf
+
         if (!phone) {
             res.status(422).json({ message: 'O telefone é obrigatório!' })
             return
         }
+        student.phone = phone
+        if (!birth) {
+            res.status(422).json({ message: 'A data de nascimento é obrigatória!' })
+            return
+        }
+        student.birth = birth
+        if (!rg) {
+            res.status(422).json({ message: 'O RG é obrigatório!' })
+            return
+        }
+        student.rg = rg
+        if (!gender) {
+            res.status(422).json({ message: 'O Gênero é obrigatório!' })
+            return
+        }
+        student.gender = gender
+        if (!civilStatus) {
+            res.status(422).json({ message: 'O estado civil é obrigatório!' })
+            return
+        }
+        student.civilStatus = civilStatus
 
         const token = getToken(req)
         const decoded = jwt.verify(token, process.env.SECRET)
 
         try {
-            const newStudent = await Student.create({ name, email, cpf, phone, createdUser: decoded.id })
+            const newStudent = await Student.create({ ...student, createdUser: decoded.id })
             res.status(201).json({ message: 'Aluno cadastrado com sucesso!', newStudent })
         } catch (error) {
             res.status(500).json({ message: error })
@@ -47,7 +79,7 @@ class StudentController {
     }
     static async getAllStudents(req, res) {
         try {
-            const students = await Student.findAll({ order: [['createdAt', 'DESC']] })
+            const students = await Student.findAll({ order: [['name', 'ASC']]}) //DESC
             res.status(201).json({ students })
         } catch (error) {
             res.status(500).json({ message: error })
@@ -64,6 +96,88 @@ class StudentController {
                 res.status(422).json({ message: "Aluno não encontrado!" })
                 return
             }
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
+
+    }
+    static async edit(req, res) {
+        const id = req.params.id
+        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
+        const student = {}
+
+        // check if student exist
+        const checkStudent = await Student.findOne({ where: { id }, raw: true })
+        if (!checkStudent) {
+            res.status(422).json({ message: 'Aluno não encontrado!' })
+            return
+        }
+
+        // validations
+        if (!name) {
+            res.status(422).json({ message: 'O nome é obrigatório!' })
+            return
+        }
+        student.name = name
+        if (!email) {
+            res.status(422).json({ message: 'O email é obrigatório!' })
+            return
+        }
+        student.email = email
+        if (!cpf) {
+            res.status(422).json({ message: 'O CPF é obrigatório!' })
+            return
+        }
+
+        const cpfIsValid = verifyCpf(cpf)
+
+        if (!cpfIsValid) {
+            res.status(422).json({ message: 'CPF inválido!' })
+            return
+        }
+
+        if (cpfIsValid !== checkStudent.cpf) {
+            // check if CPF exist
+            const checkCPF = await Student.findOne({ where: { cpf: cpfIsValid } })
+            if (checkCPF) {
+                res.status(422).json({ message: 'CPF já cadastrado!' })
+                return
+            }
+        }
+        student.cpf = cpf
+
+        if (!phone) {
+            res.status(422).json({ message: 'O telefone é obrigatório!' })
+            return
+        }
+        student.phone = phone
+        if (!birth) {
+            res.status(422).json({ message: 'A data de nascimento é obrigatória!' })
+            return
+        }
+        student.birth = birth
+        if (!rg) {
+            res.status(422).json({ message: 'O RG é obrigatório!' })
+            return
+        }
+        student.rg = rg
+        if (!gender) {
+            res.status(422).json({ message: 'O Gênero é obrigatório!' })
+            return
+        }
+        student.gender = gender
+        if (!civilStatus) {
+            res.status(422).json({ message: 'O estado civil é obrigatório!' })
+            return
+        }
+        student.civilStatus = civilStatus
+
+        const token = getToken(req)
+        const decoded = jwt.verify(token, process.env.SECRET)
+
+        try {
+            await Student.update({ ...student, updatedUser: decoded.id }, { where: { id } })
+            res.status(201).json({ message: 'Dados atualizados com sucesso!' })
         } catch (error) {
             res.status(500).json({ message: error })
         }
