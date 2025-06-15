@@ -34,6 +34,12 @@ class AuthController {
     }
     static async recovery(req, res) {
         const email = req.body.email
+        // validations
+        if (!email) {
+            res.status(422).json({ message: "O email é obrigatório!" })
+            return
+        }
+
         const user = await User.findOne({ where: { email }, raw: true })
         if (!user) {
             res.status(422).json({ message: "Email não cadastrado!" })
