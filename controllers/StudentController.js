@@ -9,6 +9,13 @@ class StudentController {
     static async create(req, res) {
         const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
         const student = {}
+        student.cep = cep
+        student.street = street
+        student.number = number
+        student.neighborhood = neighborhood
+        student.city = city
+        student.state = state
+        student.complement = complement
         // validations
         if (!name) {
             res.status(422).json({ message: 'O nome é obrigatório!' })
