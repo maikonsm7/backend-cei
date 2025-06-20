@@ -45,7 +45,7 @@ class StudentController {
             res.status(422).json({ message: 'CPF já cadastrado!' })
             return
         }
-        student.cpf = cpf
+        student.cpf = cpfIsValid
 
         if (!phone) {
             res.status(422).json({ message: 'O telefone é obrigatório!' })
@@ -151,7 +151,7 @@ class StudentController {
                 return
             }
         }
-        student.cpf = cpf
+        student.cpf = cpfIsValid
 
         if (!phone) {
             res.status(422).json({ message: 'O telefone é obrigatório!' })
