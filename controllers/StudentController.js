@@ -111,7 +111,7 @@ class StudentController {
     static async edit(req, res) {
         const id = req.params.id
         const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
-        const student = {}
+        const student = {cep, street, number, neighborhood, city, state, complement}
 
         // check if student exist
         const checkStudent = await Student.findOne({ where: { id }, raw: true })
