@@ -1,4 +1,5 @@
 const Student = require('../models/Student')
+const Course = require('../models/Course')
 const {Op} = require('sequelize')
 const jwt = require('jsonwebtoken')
 
@@ -8,7 +9,7 @@ const getToken = require('../helpers/get-token')
 
 class StudentController {
     static async create(req, res) {
-        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
+        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement, idCourse, modality, joinType, pole, stateCourse } = req.body
         const student = {cep, street, number, neighborhood, city, state, complement}
         // validations
         if (!name) {
@@ -67,6 +68,44 @@ class StudentController {
         }
         student.civilStatus = civilStatus
 
+        if (!idCourse) {
+            res.status(422).json({ message: 'O curso é obrigatório!' })
+            return
+        }
+
+        const course = await Course.findOne({where: {id: idCourse}})
+
+        if (!course) {
+            res.status(422).json({ message: 'Curso não encontrado!' })
+            return
+        }
+
+        student.idCourse = idCourse
+
+        if (!modality) {
+            res.status(422).json({ message: 'A modalidade é obrigatória!' })
+            return
+        }
+        student.modality = modality
+
+        if (!joinType) {
+            res.status(422).json({ message: 'O tipo de ingresso é obrigatório!' })
+            return
+        }
+        student.joinType = joinType
+
+        if (!pole) {
+            res.status(422).json({ message: 'O pólo é obrigatório!' })
+            return
+        }
+        student.pole = pole
+
+        if (!stateCourse) {
+            res.status(422).json({ message: 'O estado do curso é obrigatório!' })
+            return
+        }
+        student.stateCourse = stateCourse
+
         const token = getToken(req)
         const decoded = jwt.verify(token, process.env.SECRET)
 
@@ -105,7 +144,7 @@ class StudentController {
     }
     static async edit(req, res) {
         const id = req.params.id
-        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement } = req.body
+        const { name, email, cpf, phone, birth, rg, gender, civilStatus, cep, street, number, neighborhood, city, state, complement, idCourse, modality, joinType, pole, stateCourse } = req.body
         const student = {cep, street, number, neighborhood, city, state, complement}
 
         // check if student exist
@@ -173,6 +212,44 @@ class StudentController {
             return
         }
         student.civilStatus = civilStatus
+
+        if (!idCourse) {
+            res.status(422).json({ message: 'O curso é obrigatório!' })
+            return
+        }
+
+        const course = await Course.findOne({where: {id: idCourse}})
+
+        if (!course) {
+            res.status(422).json({ message: 'Curso não encontrado!' })
+            return
+        }
+
+        student.idCourse = idCourse
+
+        if (!modality) {
+            res.status(422).json({ message: 'A modalidade é obrigatória!' })
+            return
+        }
+        student.modality = modality
+
+        if (!joinType) {
+            res.status(422).json({ message: 'O tipo de ingresso é obrigatório!' })
+            return
+        }
+        student.joinType = joinType
+
+        if (!pole) {
+            res.status(422).json({ message: 'O pólo é obrigatório!' })
+            return
+        }
+        student.pole = pole
+
+        if (!stateCourse) {
+            res.status(422).json({ message: 'O estado do curso é obrigatório!' })
+            return
+        }
+        student.stateCourse = stateCourse
 
         const token = getToken(req)
         const decoded = jwt.verify(token, process.env.SECRET)

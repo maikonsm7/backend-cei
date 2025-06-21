@@ -17,6 +17,11 @@ const Student = db.define('Student', {
     city: {type: DataTypes.STRING},
     state: {type: DataTypes.STRING},
     complement: {type: DataTypes.STRING},
+    idCourse: {type: DataTypes.INTEGER},
+    modality: {type: DataTypes.STRING},
+    joinType: {type: DataTypes.STRING},
+    pole: {type: DataTypes.STRING},
+    stateCourse: {type: DataTypes.STRING},
     createdUser: {type: DataTypes.INTEGER},
     updatedUser: {type: DataTypes.INTEGER},
 })
