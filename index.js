@@ -20,15 +20,18 @@ const conn = require('./db/conn')
 const Role = require('./models/Role')
 const User = require('./models/User')
 const Student = require('./models/Student')
+const Course = require('./models/Course')
 
 // routes
 const authRoutes = require('./routes/AuthRoutes')
 const userRoutes = require('./routes/UserRoutes')
 const studentRoutes = require('./routes/StudentRoutes')
+const courseRoutes = require('./routes/CourseRoutes')
 
 app.use('/auth', authRoutes)
 app.use('/users', userRoutes)
 app.use('/students', studentRoutes)
+app.use('/courses', courseRoutes)
 
 // conn.sync({force: true})
 conn.sync()

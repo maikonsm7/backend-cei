@@ -1,4 +1,5 @@
 const Student = require('../models/Student')
+const {Op} = require('sequelize')
 const jwt = require('jsonwebtoken')
 
 // helpers
@@ -78,8 +79,9 @@ class StudentController {
 
     }
     static async getAllStudents(req, res) {
+        let search = req.query.search || ''
         try {
-            const students = await Student.findAll({ order: [['name', 'ASC']]}) //DESC
+            const students = await Student.findAll({ order: [['name', 'ASC']], where: {name: {[Op.like]: `%${search}%`}}}) //DESC
             res.status(201).json({ students })
         } catch (error) {
             res.status(500).json({ message: error })
