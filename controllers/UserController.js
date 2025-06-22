@@ -118,8 +118,8 @@ class UserController {
             }
         }
 
-        if (!active) {
-            res.status(422).json({ message: 'O campo ativo/inativo é obrigatório!' })
+        if (active !== 0 && active !== 1) {
+            res.status(422).json({ message: 'Valor inválido para ativo/inativo!' })
             return
         }
         if (!RoleId) {

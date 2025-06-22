@@ -25,7 +25,7 @@ class AuthController {
             res.status(422).json({ message: "Email não cadastrado!" })
             return
         }
-        if (user.active === false) {
+        if (!user.active) {
             res.status(422).json({ message: "Usuário inativo!" })
             return
         }
