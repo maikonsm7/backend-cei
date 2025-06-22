@@ -1,8 +1,16 @@
 const routes = require('express').Router()
 const UserController = require('../controllers/UserController')
 const verifyToken = require('../helpers/verify-token')
+const accessRole = require('../helpers/access-role')
 
-routes.post('/create', verifyToken, UserController.create)
-routes.patch('/edit', verifyToken, UserController.edit)
+/* 
+1 - Administrador
+2 - Atendente
+*/
+
+routes.post('/create', verifyToken, accessRole(1), UserController.create)
+routes.patch('/update', verifyToken, UserController.update)
+routes.patch('/update/:id', verifyToken, accessRole(1), UserController.updateById)
+routes.get('/', verifyToken, accessRole(1), UserController.getAll)
 
 module.exports = routes
