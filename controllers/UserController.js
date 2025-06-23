@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
+const {Op} = require('sequelize')
 
 // helpers
 const getToken = require('../helpers/get-token')
@@ -9,7 +10,7 @@ const sendEmail = require('../helpers/send-email')
 
 class UserController {
     static async create(req, res) {
-        const { name, email, RoleId } = req.body
+        const { name, email } = req.body
 
         // validations
         if (!name) {
@@ -28,11 +29,6 @@ class UserController {
             return
         }
 
-        if (!RoleId) {
-            res.status(422).json({ message: 'O perfil é obrigatório!' })
-            return
-        }
-
         const { password, passwordHash } = await randomPass(name)
 
         const mailOptions = {
@@ -43,9 +39,9 @@ class UserController {
         }
 
         try {
-            const newUser = await User.create({ name, email, password: passwordHash, active: true, RoleId })
-            await sendEmail(mailOptions)
+            const newUser = await User.create({ name, email, password: passwordHash, active: true, RoleId: 2 })
             res.status(201).json({ message: 'Usuário cadastrado com sucesso!', newUser })
+            await sendEmail(mailOptions)
         } catch (error) {
             res.status(500).json({ message: error })
         }
@@ -91,8 +87,14 @@ class UserController {
 
     }
     static async updateById(req, res) {
-        const { name, email, active, RoleId } = req.body
+        const { name, email, active } = req.body
+        console.log(active)
         const { id } = req.params
+
+        if(req.user.id == id){
+            res.status(422).json({ message: 'Selecione outro usuário!' })
+            return
+        }
 
         const userExist = await User.findOne({ where: {id} })
 
@@ -118,23 +120,32 @@ class UserController {
             }
         }
 
-        if (active !== 0 && active !== 1) {
+        if ( typeof active !== 'boolean') {
             res.status(422).json({ message: 'Valor inválido para ativo/inativo!' })
             return
         }
-        if (!RoleId) {
-            res.status(422).json({ message: 'O perfil é obrigatório!' })
-            return
-        }
 
-        await User.update({ name, email, active, RoleId }, { where: { id } })
+        await User.update({ name, email, active }, { where: { id } })
         res.status(200).json({ message: 'Dados alterados com sucesso!' })
 
     }
     static async getAll(req, res) {
         try {
-            const users = await User.findAll({ order: [['name', 'ASC']] }) //DESC
+            const users = await User.findAll({ where:{id: {[Op.ne]: req.user.id}, RoleId: 2}, order: [['name', 'ASC']] }) //DESC
             res.status(201).json({ users })
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
+    }
+    static async getById(req, res) {
+        const {id} = req.params
+        if(req.user.id == id){
+            res.status(422).json({ message: 'Selecione outro usuário!' })
+            return
+        }
+        try {
+            const user = await User.findOne({ where:{id}, attributes: { exclude: ['password']}})
+            res.status(201).json({ user })
         } catch (error) {
             res.status(500).json({ message: error })
         }
