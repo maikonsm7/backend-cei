@@ -8,7 +8,7 @@ const verifyToken = require('../helpers/verify-token')
 */
 
 routes.post('/create', verifyToken, PaymentController.create)
-// routes.patch('/update', verifyToken, PaymentController.update)
+routes.patch('/update/:id', verifyToken, PaymentController.update)
 routes.get('/students/:id', verifyToken, PaymentController.getAllPaymentsByStudent)
 routes.get('/', verifyToken, PaymentController.getAllStudents)
 
