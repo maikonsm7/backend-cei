@@ -8,11 +8,15 @@ const getToken = require('../helpers/get-token')
 class PaymentController {
     static async create(req, res) {
         const { expirationDate, paymentDate, paymentAmount, observation, StudentId } = req.body
+        let status = 'Pendente'
 
         // validations
         if (!expirationDate) {
             res.status(422).json({ message: 'A data de vencimento é obrigatória!' })
             return
+        }
+        if (paymentDate) {
+            status = 'Pago'
         }
         if (!paymentAmount) {
             res.status(422).json({ message: 'O valor da mensalidade é obrigatório!' })
@@ -34,7 +38,7 @@ class PaymentController {
         const decoded = jwt.verify(token, process.env.SECRET)
 
         try {
-            const newPayment = await Payment.create({ expirationDate, paymentDate, paymentAmount, status: 'Pendente', observation, StudentId, createdUser: decoded.id })
+            const newPayment = await Payment.create({ expirationDate, paymentDate, paymentAmount, status, observation, StudentId, createdUser: decoded.id })
             res.status(201).json({ message: 'Lançamento efetuado com sucesso!', newPayment })
         } catch (error) {
             res.status(500).json({ message: error })
@@ -58,24 +62,35 @@ class PaymentController {
             res.status(422).json({ message: 'A data de vencimento é obrigatória!' })
             return
         }
+        if (paymentDate) {
+            status = 'Pago'
+        }
         if (!paymentAmount) {
             res.status(422).json({ message: 'O valor da mensalidade é obrigatório!' })
             return
-        }
-        if (paymentDate) {
-            if (!this.#isValidDate(paymentDate)) {
-                res.status(422).json({ message: 'Data de pagamento inválida!' })
-                return
-            }
-            status = 'Pago'
         }
 
         const token = getToken(req)
         const decoded = jwt.verify(token, process.env.SECRET)
 
         try {
-            await Payment.update({ expirationDate, paymentDate, paymentAmount, status, observation, updatedUser: decoded.id }, {where: {id}})
+            await Payment.update({ expirationDate, paymentDate, paymentAmount, status, observation, updatedUser: decoded.id }, { where: { id } })
             res.status(201).json({ message: 'Lançamento atualizado com sucesso!' })
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
+
+    }
+    static async getById(req, res) {
+        const id = req.params.id
+        try {
+            const payment = await Payment.findOne({ where: { id }, raw: true })
+            if (!payment) {
+                res.status(422).json({ message: "Lançamento não encontrado!" })
+                return
+            }
+            res.status(200).json({ payment })
+
         } catch (error) {
             res.status(500).json({ message: error })
         }
@@ -83,14 +98,14 @@ class PaymentController {
     }
     static async getAllStudents(req, res) {
         try {
-            const students = await Student.findAll({raw: true, order: [['name', 'ASC']], attributes: ['id', 'name', 'email', 'phone'] })
-            const paymentsPending = await Payment.findAll({where: {status: 'Pendente'}, raw: true})
+            const students = await Student.findAll({ raw: true, order: [['name', 'ASC']], attributes: ['id', 'name', 'email', 'phone'] })
+            const paymentsPending = await Payment.findAll({ where: { status: 'Pendente' }, raw: true })
             const idStudents = paymentsPending.map(p => p.StudentId)
-            
+
             const paymentStudents = students.map(student => {
-                if(idStudents.includes(student.id)){
+                if (idStudents.includes(student.id)) {
                     student.status = 'Pendente'
-                }else{
+                } else {
                     student.status = 'Pago'
                 }
                 return student
@@ -100,7 +115,15 @@ class PaymentController {
             res.status(500).json({ message: error })
         }
     }
-    static async getAllPaymentsByStudent(req, res){
+    static async getStudentsList(req, res) {
+        try {
+            const students = await Student.findAll({ raw: true, order: [['name', 'ASC']], attributes: ['id', 'name'] })
+            res.status(201).json({ students })
+        } catch (error) {
+            res.status(500).json({ message: error })
+        }
+    }
+    static async getAllPaymentsByStudent(req, res) {
         const id = req.params.id
         // check if student exist
         const checkStudent = await Student.findOne({ where: { id }, raw: true })
@@ -110,30 +133,11 @@ class PaymentController {
         }
 
         try {
-        const paymentsByStudent = await Payment.findAll({where: {StudentId: id}, raw: true})
-        res.status(201).json({ paymentsByStudent })
+            const paymentsByStudent = await Payment.findAll({ where: { StudentId: id }, order: [['createdAt', 'DESC']], raw: true })
+            res.status(201).json({ paymentsByStudent })
         } catch (error) {
             res.status(500).json({ message: error })
         }
-    }
-    static #isValidDate(dateStr) {
-        // Verifica o formato com regex
-        const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-        const match = dateStr.match(regex)
-        if (!match) return false
-
-        const day = parseInt(match[1], 10)
-        const month = parseInt(match[2], 10) - 1 // JavaScript usa 0-11
-        const year = parseInt(match[3], 10)
-
-        const date = new Date(year, month, day)
-
-        // Verifica se o objeto Date corresponde aos valores originais
-        return (
-            date.getFullYear() === year &&
-            date.getMonth() === month &&
-            date.getDate() === day
-        )
     }
 
 }

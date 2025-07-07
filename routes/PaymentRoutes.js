@@ -10,6 +10,8 @@ const verifyToken = require('../helpers/verify-token')
 routes.post('/create', verifyToken, PaymentController.create)
 routes.patch('/update/:id', verifyToken, PaymentController.update)
 routes.get('/students/:id', verifyToken, PaymentController.getAllPaymentsByStudent)
+routes.get('/students', verifyToken, PaymentController.getStudentsList)
+routes.get('/:id', verifyToken, PaymentController.getById)
 routes.get('/', verifyToken, PaymentController.getAllStudents)
 
 module.exports = routes
