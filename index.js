@@ -1,10 +1,16 @@
 require('dotenv').config()
 const express = require('express')
+const rateLimit = require('express-rate-limit')
 //const fs = require('fs')
 const cors = require('cors')
 const https = require('https')
 const app = express()
 const port = process.env.PORT || 3001
+
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500, // por IP a cada 15 minutos
+}))
 
 /* const sslOptions = {
   key: fs.readFileSync('/etc/letsencrypt/live/itacoatiaracei.com.br/privkey.pem'),

@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 // helpers
 const verifyCpf = require('../helpers/verify-cpf')
 const getToken = require('../helpers/get-token')
+const {validDate} = require('../helpers/valid-date')
 
 class StudentController {
     static async create(req, res) {
@@ -49,6 +50,10 @@ class StudentController {
         student.phone = phone
         if (!birth) {
             res.status(422).json({ message: 'A data de nascimento é obrigatória!' })
+            return
+        }
+        if (!validDate(birth)) {
+            res.status(422).json({ message: 'Data de nascimento inválida!' })
             return
         }
         student.birth = birth
@@ -194,6 +199,10 @@ class StudentController {
         student.phone = phone
         if (!birth) {
             res.status(422).json({ message: 'A data de nascimento é obrigatória!' })
+            return
+        }
+        if (!validDate(birth)) {
+            res.status(422).json({ message: 'Data de nascimento inválida!' })
             return
         }
         student.birth = birth

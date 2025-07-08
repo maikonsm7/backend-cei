@@ -4,8 +4,10 @@ const jwt = require('jsonwebtoken')
 
 // helpers
 const getToken = require('../helpers/get-token')
+const { validDate } = require('../helpers/valid-date')
 
 class PaymentController {
+
     static async create(req, res) {
         const { expirationDate, paymentDate, paymentAmount, observation, StudentId } = req.body
         let status = 'Pendente'
@@ -15,7 +17,15 @@ class PaymentController {
             res.status(422).json({ message: 'A data de vencimento é obrigatória!' })
             return
         }
+        if (!validDate(expirationDate)) {
+            res.status(422).json({ message: 'Data de vencimento inválida!' })
+            return
+        }
         if (paymentDate) {
+            if (!validDate(paymentDate)) {
+                res.status(422).json({ message: 'Data de pagamento inválida!' })
+                return
+            }
             status = 'Pago'
         }
         if (!paymentAmount) {
@@ -62,7 +72,15 @@ class PaymentController {
             res.status(422).json({ message: 'A data de vencimento é obrigatória!' })
             return
         }
+        if (!validDate(expirationDate)) {
+            res.status(422).json({ message: 'Data de vencimento inválida!' })
+            return
+        }
         if (paymentDate) {
+            if (!validDate(paymentDate)) {
+                res.status(422).json({ message: 'Data de pagamento inválida!' })
+                return
+            }
             status = 'Pago'
         }
         if (!paymentAmount) {
@@ -134,11 +152,12 @@ class PaymentController {
 
         try {
             const paymentsByStudent = await Payment.findAll({ where: { StudentId: id }, order: [['createdAt', 'DESC']], raw: true })
-            res.status(201).json({ paymentsByStudent })
+            res.status(201).json({ student: checkStudent.name, paymentsByStudent })
         } catch (error) {
             res.status(500).json({ message: error })
         }
     }
+
 
 }
 
