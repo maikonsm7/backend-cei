@@ -134,7 +134,13 @@ class StudentController {
     static async getStudentById(req, res) {
         const id = req.params.id
         try {
-            const student = await Student.findOne({ where: { id }, raw: true })
+
+            const student = await Student.findOne({ where: { id }, raw: true})
+            const course = await Course.findOne({where: {id: student.idCourse}, attributes: ['name']})
+            student.nameCourse = course.name
+
+            console.log(student)
+
             if (student) {
                 res.status(200).json({ student })
                 return
