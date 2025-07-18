@@ -139,8 +139,6 @@ class StudentController {
             const course = await Course.findOne({where: {id: student.idCourse}, attributes: ['name']})
             student.nameCourse = course.name
 
-            console.log(student)
-
             if (student) {
                 res.status(200).json({ student })
                 return
