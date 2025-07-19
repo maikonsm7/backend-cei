@@ -5,7 +5,7 @@ const createUserToken = async (user, req, res) => {
         name: user.name,
         role: user.RoleId,
         id: user.id
-    }, process.env.SECRET)
+    }, process.env.SECRET, { expiresIn: '24h' })
     res.status(200).json({message: "Você está autenticado!", role: user.RoleId, token})
 }
 
