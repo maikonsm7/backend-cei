@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const rateLimit = require('express-rate-limit')
-//const fs = require('fs')
+const fs = require('fs')
 const cors = require('cors')
 const https = require('https')
 const app = express()
@@ -12,17 +12,17 @@ app.use(rateLimit({
   max: 500, // por IP a cada 15 minutos
 }))
 
-/* const sslOptions = {
+const sslOptions = {
   key: fs.readFileSync('/etc/letsencrypt/live/itacoatiaracei.com.br/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/itacoatiaracei.com.br/fullchain.pem')
-} */
+}
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // solve cors
-app.use(cors({ credentials: true, origin: 'http://localhost:5173' }))
-//app.use(cors({ credentials: true, origin: ['https://itacoatiaracei.com.br', 'https://www.itacoatiaracei.com.br'] }))
+// app.use(cors({ credentials: true, origin: 'http://localhost:5173' }))
+app.use(cors({ credentials: true, origin: ['https://itacoatiaracei.com.br', 'https://www.itacoatiaracei.com.br'] }))
 
 // public folder for images
 app.use(express.static('public'))
@@ -52,10 +52,10 @@ app.use('/payments', paymentRoutes)
 
 // conn.sync({force: true})
 conn.sync()
-    .then(app.listen(port, () => {
+    /* .then(app.listen(port, () => {
         console.log(`http://localhost:${port}`)
-    }))
-    /* .then(()=>{https.createServer(sslOptions, app).listen(port, () => {
+    })) */
+    .then(()=>{https.createServer(sslOptions, app).listen(port, () => {
         console.log(`http://localhost:${port}`)
-    })}) */
+    })})
     .catch(e => console.log(e))
